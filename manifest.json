@@ -2,7 +2,7 @@
   "name": "Routine Compléments Alimentaires",
   "short_name": "Compléments",
   "description": "Application de suivi quotidien de vos suppléments nutritionnels",
-  "start_url": "/routine_complements_alimentaires.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0F0F1A",
   "theme_color": "#66BFFF",

@@ -1,7 +1,7 @@
 const CACHE_NAME = 'complements-v1';
 const urlsToCache = [
   '/',
-  '/routine_complements_alimentaires.html',
+  '/index.html',
   '/manifest.json'
 ];
 
