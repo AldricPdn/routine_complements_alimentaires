@@ -43,7 +43,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -85,11 +85,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
         th, td {
-            padding: 8px 4px;
+            padding: 12px 8px;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
@@ -100,7 +100,7 @@
             background: rgba(102, 191, 255, 0.1);
             font-weight: 600;
             color: #66BFFF;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -478,13 +478,13 @@
             }
             
             table {
-                font-size: 0.7rem;
-                min-width: 600px; /* Force horizontal scroll */
+                font-size: 0.8rem;
+                min-width: 700px; /* Force horizontal scroll */
             }
             
             th, td {
-                padding: 6px 4px;
-                font-size: 0.65rem;
+                padding: 8px 6px;
+                font-size: 0.75rem;
                 white-space: nowrap;
             }
             
@@ -1604,8 +1604,19 @@
                                 <input type="date" id="pauseStart" class="form-input" value="${new Date().toISOString().split('T')[0]}">
                             </div>
                             <div class="form-group">
+                                <label class="form-label">Type de pause</label>
+                                <select id="pauseType" class="form-input" onchange="togglePauseDateField()">
+                                    <option value="duration">Par durée (semaines)</option>
+                                    <option value="date">Par date de fin</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="durationGroup">
                                 <label class="form-label">Durée de la pause (semaines)</label>
                                 <input type="number" id="pauseDuration" class="form-input" value="4" min="1" max="12">
+                            </div>
+                            <div class="form-group" id="dateGroup" style="display: none;">
+                                <label class="form-label">Date de fin de pause</label>
+                                <input type="date" id="pauseEndDate" class="form-input" value="${new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}">
                             </div>
                             <div class="modal-actions">
                                 <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
@@ -1628,8 +1639,19 @@
                                 </select>
                             </div>
                             <div class="form-group" id="durationGroup">
+                                <label class="form-label">Type de durée</label>
+                                <select id="durationType" class="form-input" onchange="toggleDurationInput()">
+                                    <option value="weeks">Par nombre de semaines</option>
+                                    <option value="date">Par date de fin</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="weeksGroup">
                                 <label class="form-label">Durée de la cure (semaines)</label>
                                 <input type="number" id="cureDuration" class="form-input" value="12" min="4" max="16">
+                            </div>
+                            <div class="form-group" id="endDateGroup" style="display: none;">
+                                <label class="form-label">Date de fin de cure</label>
+                                <input type="date" id="cureEndDate" class="form-input" value="${new Date(Date.now() + 84 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}">
                             </div>
                             <div class="modal-actions">
                                 <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
@@ -1678,19 +1700,32 @@
 
             function confirmPause(supplement) {
                 const pauseStart = document.getElementById('pauseStart').value;
-                const pauseDuration = parseInt(document.getElementById('pauseDuration').value);
+                const pauseType = document.getElementById('pauseType').value;
                 
                 cureData[supplement].status = "pause";
                 cureData[supplement].pauseStart = pauseStart;
-                cureData[supplement].pauseDuration = pauseDuration * 7;
                 cureData[supplement].currentPauseDay = 0;
                 cureData[supplement].type = "pause";
                 
-                // Calculer la date de fin de pause
-                const pauseStartDate = new Date(pauseStart);
-                const pauseEndDate = new Date(pauseStartDate);
-                pauseEndDate.setDate(pauseEndDate.getDate() + pauseDuration * 7);
-                cureData[supplement].pauseEnd = pauseEndDate.toISOString().split('T')[0];
+                if (pauseType === 'duration') {
+                    const pauseDuration = parseInt(document.getElementById('pauseDuration').value);
+                    cureData[supplement].pauseDuration = pauseDuration * 7;
+                    
+                    // Calculer la date de fin de pause
+                    const pauseStartDate = new Date(pauseStart);
+                    const pauseEndDate = new Date(pauseStartDate);
+                    pauseEndDate.setDate(pauseEndDate.getDate() + pauseDuration * 7);
+                    cureData[supplement].pauseEnd = pauseEndDate.toISOString().split('T')[0];
+                } else {
+                    const pauseEndDate = document.getElementById('pauseEndDate').value;
+                    cureData[supplement].pauseEnd = pauseEndDate;
+                    
+                    // Calculer la durée en jours
+                    const startDate = new Date(pauseStart);
+                    const endDate = new Date(pauseEndDate);
+                    const daysDiff = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+                    cureData[supplement].pauseDuration = daysDiff;
+                }
                 
                 saveCureData();
                 updateCureDisplay(supplement);
@@ -1710,6 +1745,34 @@
                 }
             }
 
+            function toggleDurationInput() {
+                const durationType = document.getElementById('durationType');
+                const weeksGroup = document.getElementById('weeksGroup');
+                const endDateGroup = document.getElementById('endDateGroup');
+                
+                if (durationType.value === 'weeks') {
+                    weeksGroup.style.display = 'block';
+                    endDateGroup.style.display = 'none';
+                } else {
+                    weeksGroup.style.display = 'none';
+                    endDateGroup.style.display = 'block';
+                }
+            }
+
+            function togglePauseDateField() {
+                const pauseType = document.getElementById('pauseType');
+                const durationGroup = document.getElementById('durationGroup');
+                const dateGroup = document.getElementById('dateGroup');
+                
+                if (pauseType.value === 'duration') {
+                    durationGroup.style.display = 'block';
+                    dateGroup.style.display = 'none';
+                } else {
+                    durationGroup.style.display = 'none';
+                    dateGroup.style.display = 'block';
+                }
+            }
+
             function confirmStart(supplement) {
                 const startDate = document.getElementById('startDate').value;
                 const cureType = document.getElementById('cureType').value;
@@ -1723,14 +1786,27 @@
                     cureData[supplement].duration = 0;
                     cureData[supplement].endDate = 'continue';
                 } else {
-                    const cureDuration = parseInt(document.getElementById('cureDuration').value);
-                    cureData[supplement].duration = cureDuration * 7;
+                    const durationType = document.getElementById('durationType').value;
                     
-                    // Calculer la date de fin de cure
-                    const startDateObj = new Date(startDate);
-                    const endDateObj = new Date(startDateObj);
-                    endDateObj.setDate(endDateObj.getDate() + cureDuration * 7);
-                    cureData[supplement].endDate = endDateObj.toISOString().split('T')[0];
+                    if (durationType === 'weeks') {
+                        const cureDuration = parseInt(document.getElementById('cureDuration').value);
+                        cureData[supplement].duration = cureDuration * 7;
+                        
+                        // Calculer la date de fin de cure
+                        const startDateObj = new Date(startDate);
+                        const endDateObj = new Date(startDateObj);
+                        endDateObj.setDate(endDateObj.getDate() + cureDuration * 7);
+                        cureData[supplement].endDate = endDateObj.toISOString().split('T')[0];
+                    } else {
+                        const endDate = document.getElementById('cureEndDate').value;
+                        cureData[supplement].endDate = endDate;
+                        
+                        // Calculer la durée en jours
+                        const startDateObj = new Date(startDate);
+                        const endDateObj = new Date(endDate);
+                        const daysDiff = Math.floor((endDateObj - startDateObj) / (1000 * 60 * 60 * 24));
+                        cureData[supplement].duration = daysDiff;
+                    }
                 }
                 
                 saveCureData();
@@ -1879,14 +1955,20 @@
                 }, 3000);
             }
 
-            // Fonction pour formater les dates en jj/mm/aaaa
+            // Fonction pour formater les dates en format français
             function formatDate(dateString) {
                 if (!dateString || dateString === 'continue') return dateString;
                 const date = new Date(dateString);
-                const day = date.getDate().toString().padStart(2, '0');
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate();
+                const month = date.getMonth();
                 const year = date.getFullYear();
-                return `${day}/${month}/${year}`;
+                
+                const months = [
+                    'janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
+                ];
+                
+                return `${day} ${months[month]} ${year}`;
             }
 
             // Fonctions pour mettre à jour les autres sections
