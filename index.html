@@ -1218,7 +1218,7 @@
                 omega3: {
                     name: "Oméga 3 (Naturamind)",
                     status: "active",
-                    startDate: "2025-08-15",
+                    startDate: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
                     endDate: "continue",
                     duration: 0, // continue
                     pauseDuration: 0, // pas de pause
@@ -1228,7 +1228,7 @@
                 glycine: {
                     name: "Glycine (Nutrimuscle)",
                     status: "pause",
-                    startDate: "2025-08-15",
+                    startDate: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
                     endDate: "continue",
                     duration: 0, // continue
                     pauseDuration: 0, // en livraison
@@ -1238,28 +1238,40 @@
                 complexeb: {
                     name: "Complexe B (Nutrixeal)",
                     status: "active",
-                    startDate: "2025-08-15",
-                    endDate: "2025-10-08",
+                    startDate: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
+                    endDate: function() {
+                        const start = new Date();
+                        start.setDate(start.getDate() + 56); // 8 semaines
+                        return start.toISOString().split('T')[0];
+                    }(),
                     duration: 56, // 8 semaines
                     pauseDuration: 0, // pas de pause
-                    currentDay: 3,
+                    currentDay: 1,
                     type: "cure"
                 },
                 ashwagandha: {
                     name: "Ashwagandha (True Nature)",
                     status: "pause",
                     startDate: "2024-01-15",
-                    pauseStart: "2025-08-15",
-                    pauseEnd: "2025-08-25",
+                    pauseStart: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
+                    pauseEnd: function() {
+                        const start = new Date();
+                        start.setDate(start.getDate() + 10); // 10 jours de pause
+                        return start.toISOString().split('T')[0];
+                    }(),
                     pauseDuration: 10, // jours
-                    currentPauseDay: 6,
+                    currentPauseDay: 1,
                     type: "pause"
                 },
                 rhodiola: {
                     name: "Rhodiola Rosea (Herboristerie du Vermont)",
                     status: "active",
-                    startDate: "2025-08-15",
-                    endDate: "2025-10-10",
+                    startDate: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
+                    endDate: function() {
+                        const start = new Date();
+                        start.setDate(start.getDate() + 56); // 8 semaines
+                        return start.toISOString().split('T')[0];
+                    }(),
                     duration: 56,
                     pauseDuration: 21,
                     currentDay: 1,
@@ -1269,20 +1281,33 @@
                     name: "Créatine (GreenWhey)",
                     status: "active",
                     startDate: "2024-01-10",
-                    endDate: "2024-04-03",
+                    endDate: function() {
+                        const start = new Date("2024-01-10");
+                        start.setDate(start.getDate() + 84); // 12 semaines
+                        return start.toISOString().split('T')[0];
+                    }(),
                     duration: 84,
                     pauseDuration: 42,
-                    currentDay: 38,
+                    currentDay: function() {
+                        const start = new Date("2024-01-10");
+                        const today = new Date();
+                        const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+                        return Math.max(1, daysDiff + 1);
+                    }(),
                     type: "cure"
                 },
                 magnesium: {
                     name: "Magnésium Bisglycinate (Nutrixeal)",
                     status: "active",
-                    startDate: "2025-08-15",
-                    endDate: "2025-10-08",
+                    startDate: new Date().toISOString().split('T')[0], // Date d'aujourd'hui
+                    endDate: function() {
+                        const start = new Date();
+                        start.setDate(start.getDate() + 56); // 8 semaines
+                        return start.toISOString().split('T')[0];
+                    }(),
                     duration: 56, // 8 semaines
                     pauseDuration: 28, // 4 semaines
-                    currentDay: 3,
+                    currentDay: 1,
                     type: "cure"
                 }
             };
