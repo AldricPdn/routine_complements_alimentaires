@@ -38,7 +38,7 @@
       "name": "Ajouter un complément",
       "short_name": "Ajouter",
       "description": "Ajouter un nouveau complément à votre routine",
-      "url": "/routine_complements_alimentaires.html#add",
+             "url": "/#add",
       "icons": [
         {
           "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiM2NkJGRkYiLz4KPHBhdGggZD0iTTQ4IDI0VjcyTTI0IDQ4SDcyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K",
@@ -50,7 +50,7 @@
       "name": "Voir le planning",
       "short_name": "Planning",
       "description": "Consulter votre planning quotidien",
-      "url": "/routine_complements_alimentaires.html#schedule",
+             "url": "/#schedule",
       "icons": [
         {
           "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiNEMEIzRkYiLz4KPHBhdGggZD0iTTI0IDI0SDcyTTI0IDQ4SDcyTTI0IDcySDcyIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K",
@@ -70,7 +70,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+complements",
-      "url": "/routine_complements_alimentaires.html?supplement=%s"
+             "url": "/?supplement=%s"
     }
   ]
 }
