@@ -872,6 +872,7 @@
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
             <button onclick="refreshData()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">🔄 Rafraîchir les données</button>
+            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Synchroniser</button>
             <button onclick="forceUpdate()" style="background: rgba(248, 191, 216, 0.2); border: 1px solid rgba(248, 191, 216, 0.5); color: #F8BFD8; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Forcer mise à jour</button>
         </div>
 
@@ -2296,22 +2297,53 @@
             // Fonctions de sauvegarde et chargement
             function saveCureData() {
                 localStorage.setItem('cureData', JSON.stringify(cureData));
+                
+                // Synchronisation automatique
+                const syncData = {
+                    data: cureData,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+                localStorage.setItem('cureDataSync', JSON.stringify(syncData));
+                
+                // Notifier les autres onglets/instances
+                if ('BroadcastChannel' in window) {
+                    const channel = new BroadcastChannel('cure-data-sync');
+                    channel.postMessage({
+                        type: 'DATA_UPDATED',
+                        timestamp: syncData.timestamp
+                    });
+                }
             }
 
             function loadCureData() {
-                const saved = localStorage.getItem('cureData');
-                if (saved) {
-                    cureData = JSON.parse(saved);
-                    // Mettre à jour l'affichage pour tous les suppléments
-                    Object.keys(cureData).forEach(supplement => {
-                        updateCureDisplay(supplement);
-                    });
+                // Essayer de charger les données synchronisées en premier
+                const synced = localStorage.getItem('cureDataSync');
+                if (synced) {
+                    try {
+                        const parsed = JSON.parse(synced);
+                        cureData = parsed.data;
+                        console.log('Données synchronisées chargées:', parsed.timestamp);
+                    } catch (e) {
+                        console.error('Erreur lors du chargement des données synchronisées:', e);
+                        // Fallback vers les données normales
+                        const saved = localStorage.getItem('cureData');
+                        if (saved) {
+                            cureData = JSON.parse(saved);
+                        }
+                    }
                 } else {
-                    // Si pas de données sauvegardées, mettre à jour l'affichage initial
-                    Object.keys(cureData).forEach(supplement => {
-                        updateCureDisplay(supplement);
-                    });
+                    // Charger les données normales
+                    const saved = localStorage.getItem('cureData');
+                    if (saved) {
+                        cureData = JSON.parse(saved);
+                    }
                 }
+                
+                // Mettre à jour l'affichage pour tous les suppléments
+                Object.keys(cureData).forEach(supplement => {
+                    updateCureDisplay(supplement);
+                });
             }
 
             // Fonction pour avancer automatiquement les jours
@@ -2372,9 +2404,85 @@
                 });
             }
 
+            // Fonction pour synchroniser les données
+            function syncData() {
+                // Sauvegarder les données actuelles avec un timestamp
+                const syncData = {
+                    data: cureData,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+                localStorage.setItem('cureDataSync', JSON.stringify(syncData));
+                
+                // Forcer la sauvegarde des données normales
+                saveCureData();
+                
+                // Notifier les autres onglets/instances
+                if ('BroadcastChannel' in window) {
+                    const channel = new BroadcastChannel('cure-data-sync');
+                    channel.postMessage({
+                        type: 'DATA_UPDATED',
+                        timestamp: syncData.timestamp
+                    });
+                }
+                
+                showNotification('Données synchronisées !', 'success');
+            }
+
+            // Fonction pour charger les données synchronisées
+            function loadSyncedData() {
+                const synced = localStorage.getItem('cureDataSync');
+                if (synced) {
+                    try {
+                        const parsed = JSON.parse(synced);
+                        cureData = parsed.data;
+                        console.log('Données synchronisées chargées:', parsed.timestamp);
+                        return true;
+                    } catch (e) {
+                        console.error('Erreur lors du chargement des données synchronisées:', e);
+                    }
+                }
+                return false;
+            }
+
             // Charger les données au démarrage
             loadCureData();
             advanceDays();
+
+            // Écouter les messages de synchronisation
+            if ('BroadcastChannel' in window) {
+                const channel = new BroadcastChannel('cure-data-sync');
+                channel.addEventListener('message', (event) => {
+                    if (event.data.type === 'DATA_UPDATED') {
+                        console.log('Nouvelles données reçues:', event.data.timestamp);
+                        // Recharger les données
+                        loadCureData();
+                        advanceDays();
+                        showNotification('Données mises à jour !', 'info');
+                    }
+                });
+            }
+
+            // Synchronisation automatique toutes les 30 secondes
+            setInterval(() => {
+                // Vérifier s'il y a de nouvelles données synchronisées
+                const synced = localStorage.getItem('cureDataSync');
+                if (synced) {
+                    try {
+                        const parsed = JSON.parse(synced);
+                        const currentData = JSON.stringify(cureData);
+                        const syncedData = JSON.stringify(parsed.data);
+                        
+                        if (currentData !== syncedData) {
+                            console.log('Synchronisation automatique détectée');
+                            loadCureData();
+                            advanceDays();
+                        }
+                    } catch (e) {
+                        console.error('Erreur lors de la synchronisation automatique:', e);
+                    }
+                }
+            }, 30000); // 30 secondes
             
             // Debug: Afficher les données chargées dans la console
             console.log('Données des cures chargées:', cureData);
