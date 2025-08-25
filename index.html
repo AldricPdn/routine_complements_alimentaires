@@ -871,6 +871,8 @@
         <div class="header">
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
+            <button onclick="refreshData()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">🔄 Rafraîchir les données</button>
+            <button onclick="forceUpdate()" style="background: rgba(248, 191, 216, 0.2); border: 1px solid rgba(248, 191, 216, 0.5); color: #F8BFD8; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Forcer mise à jour</button>
         </div>
 
         <div class="table-container">
@@ -2345,6 +2347,31 @@
 
 
 
+            // Fonction pour forcer la mise à jour du cache
+            function forceUpdate() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.update();
+                        }
+                    });
+                }
+                
+                // Vider le cache du localStorage et recharger
+                localStorage.clear();
+                location.reload();
+            }
+
+            // Fonction pour rafraîchir les données
+            function refreshData() {
+                loadCureData();
+                advanceDays();
+                // Mettre à jour l'affichage pour tous les suppléments
+                Object.keys(cureData).forEach(supplement => {
+                    updateCureDisplay(supplement);
+                });
+            }
+
             // Charger les données au démarrage
             loadCureData();
             advanceDays();
@@ -2372,6 +2399,20 @@
                     navigator.serviceWorker.register('/sw.js')
                         .then((registration) => {
                             console.log('Service Worker enregistré avec succès:', registration.scope);
+                            
+                            // Vérifier les mises à jour
+                            registration.addEventListener('updatefound', () => {
+                                console.log('Nouvelle version disponible');
+                                const newWorker = registration.installing;
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        // Nouvelle version installée, proposer le rafraîchissement
+                                        if (confirm('Une nouvelle version est disponible. Voulez-vous rafraîchir la page ?')) {
+                                            location.reload();
+                                        }
+                                    }
+                                });
+                            });
                         })
                         .catch((error) => {
                             console.log('Échec de l\'enregistrement du Service Worker:', error);

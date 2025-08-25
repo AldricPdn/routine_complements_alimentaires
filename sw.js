@@ -1,4 +1,4 @@
-const CACHE_NAME = 'complements-v1';
+const CACHE_NAME = 'complements-v2';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -19,31 +19,26 @@ self.addEventListener('install', (event) => {
 // Interception des requêtes
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Retourner la réponse du cache si elle existe
-        if (response) {
+        // Vérifier si la réponse est valide
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
         
-        // Sinon, faire la requête réseau
-        return fetch(event.request)
-          .then((response) => {
-            // Vérifier si la réponse est valide
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            // Cloner la réponse car elle ne peut être utilisée qu'une fois
-            const responseToCache = response.clone();
-            
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-            
-            return response;
+        // Cloner la réponse car elle ne peut être utilisée qu'une fois
+        const responseToCache = response.clone();
+        
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
           });
+        
+        return response;
+      })
+      .catch(() => {
+        // En cas d'échec réseau, essayer le cache
+        return caches.match(event.request);
       })
   );
 });
