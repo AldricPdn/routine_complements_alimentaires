@@ -85,11 +85,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            font-size: 0.9rem;
+            font-size: 1rem;
         }
 
         th, td {
-            padding: 12px 8px;
+            padding: 14px 10px;
             text-align: left;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             white-space: nowrap;
@@ -100,7 +100,7 @@
             background: rgba(102, 191, 255, 0.1);
             font-weight: 600;
             color: #66BFFF;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -114,17 +114,17 @@
         .price {
             color: #66BFFF;
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
 
         .stock {
             color: #D0B3FF;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
 
         .status {
             font-weight: 600;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
 
         .status.active {
@@ -139,9 +139,13 @@
             color: #EF4444;
         }
 
+        .status.completed {
+            color: #4ADE80;
+        }
+
         .effects {
             color: #F8BFD8;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-style: italic;
         }
 
@@ -280,9 +284,9 @@
         }
 
         .cure-status.completed {
-            background: rgba(102, 191, 255, 0.2);
-            color: #66BFFF;
-            border: 1px solid rgba(102, 191, 255, 0.3);
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ADE80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
         }
 
         .cure-progress {
@@ -370,16 +374,19 @@
         .supplement-name {
             font-weight: 600;
             color: #D0B3FF;
+            font-size: 1rem;
         }
 
         .brand {
             color: #F8BFD8;
             font-style: italic;
+            font-size: 0.8rem;
         }
 
         .dosage {
             font-weight: 600;
             color: #66BFFF;
+            font-size: 0.9rem;
         }
 
         .ar-percentage {
@@ -390,6 +397,7 @@
 
         .timing {
             color: #A0A0A0;
+            font-size: 0.85rem;
         }
 
         .notes {
@@ -970,6 +978,33 @@
             </table>
         </div>
 
+        <!-- Deuxième tableau pour les substances spéciales -->
+        <div class="table-container" style="margin-top: 40px;">
+            <h2 style="color: #D0B3FF; margin-bottom: 20px; text-align: center;">🧪 Substances Spéciales</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Substance</th>
+                        <th>Dosage</th>
+                        <th>Moment précis</th>
+                        <th>Indication</th>
+                        <th>Prix unitaire</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="supplement-name">LSD</td>
+                        <td class="dosage">20 µg (1 microdose)</td>
+                        <td class="timing">Matin (week-end)</td>
+                        <td class="effects">Créativité, conscience, bien-être</td>
+                        <td class="price">€15.00</td>
+                        <td class="stock">10 microdoses</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
         <div class="cure-tracking">
             <h2 style="color: #D0B3FF; margin-bottom: 20px;">📅 Suivi interactif des cures</h2>
             
@@ -1299,7 +1334,9 @@
                         <p><strong>Prix unitaire :</strong> €25.64</p>
                         <p><strong>Prix quotidien :</strong> €0.07/jour</p>
                         <p><strong>Statut :</strong> ⏸️ En pause jusqu'au 25/08/2025</p>
-                        <p><strong>Notes :</strong> Adaptogène qui améliore la qualité du sommeil et réduit le stress. Peut être prise avec ou sans nourriture. Plante médicinale bio, pas d'AR établi.</p>
+                        <p><strong>Indications :</strong> Stress chronique, troubles du sommeil, anxiété, fatigue</p>
+                        <p><strong>Effets principaux :</strong> Améliore la qualité du sommeil, réduit le cortisol, favorise la relaxation</p>
+                        <p><strong>Précautions :</strong> Peut être prise avec ou sans nourriture. Plante médicinale bio, pas d'AR établi.</p>
                     </div>
                 </div>
 
@@ -1313,7 +1350,9 @@
                         <p><strong>Prix unitaire :</strong> €25.00</p>
                         <p><strong>Prix quotidien :</strong> €0.83/jour</p>
                         <p><strong>Statut :</strong> 🔄 En cure jusqu'au 08/10/2025</p>
-                        <p><strong>Notes :</strong> Prendre avec de la nourriture pour éviter les nausées. Les vitamines B sont hydrosolubles et s'éliminent dans les urines. 2 gélules = 100% AR pour B1, B2, B3, B5, B6, B8, B9 et B12.</p>
+                        <p><strong>Indications :</strong> Fatigue chronique, carences en vitamines B, stress, troubles neurologiques</p>
+                        <p><strong>Effets principaux :</strong> Production d'énergie cellulaire, santé nerveuse, métabolisme des glucides</p>
+                        <p><strong>Précautions :</strong> Prendre avec de la nourriture pour éviter les nausées. Les vitamines B sont hydrosolubles et s'éliminent dans les urines. 2 gélules = 100% AR pour B1, B2, B3, B5, B6, B8, B9 et B12.</p>
                     </div>
                 </div>
 
@@ -1328,7 +1367,9 @@
                         <p><strong>Prix unitaire :</strong> €24.95</p>
                         <p><strong>Prix quotidien :</strong> €0.42/jour</p>
                         <p><strong>Statut :</strong> ✅ Actif</p>
-                        <p><strong>Notes :</strong> Phase de charge : 20g/jour pendant 5-7 jours, puis 5g/jour en maintenance. Prendre avec des glucides pour une meilleure absorption. Pas d'AR établi, complément sportif.</p>
+                        <p><strong>Indications :</strong> Performance sportive, musculation, récupération musculaire, fatigue</p>
+                        <p><strong>Effets principaux :</strong> Augmente la force musculaire, améliore la récupération, booste l'énergie</p>
+                        <p><strong>Précautions :</strong> Phase de charge : 20g/jour pendant 5-7 jours, puis 5g/jour en maintenance. Prendre avec des glucides pour une meilleure absorption. Pas d'AR établi, complément sportif.</p>
                     </div>
                 </div>
 
@@ -1342,7 +1383,9 @@
                         <p><strong>Prix unitaire :</strong> €22.95</p>
                         <p><strong>Prix quotidien :</strong> €0.09/jour</p>
                         <p><strong>Statut :</strong> ✅ Actif</p>
-                        <p><strong>Notes :</strong> Améliore la qualité du sommeil et la récupération. Dosage optimisé : 3g/jour pour éviter les effets secondaires digestifs. Peut être prise avec de l'eau ou dans un shake protéiné. Acide aminé non essentiel, sans AR établi.</p>
+                        <p><strong>Indications :</strong> Troubles du sommeil, récupération, stress, anxiété</p>
+                        <p><strong>Effets principaux :</strong> Améliore la qualité du sommeil, favorise la récupération, calme le système nerveux</p>
+                        <p><strong>Précautions :</strong> Dosage optimisé : 3g/jour pour éviter les effets secondaires digestifs. Peut être prise avec de l'eau ou dans un shake protéiné. Acide aminé non essentiel, sans AR établi.</p>
                     </div>
                 </div>
 
@@ -1357,7 +1400,9 @@
                         <p><strong>Prix unitaire :</strong> €19.50</p>
                         <p><strong>Prix quotidien :</strong> €0.59/jour</p>
                         <p><strong>Statut :</strong> 🔄 En cure jusqu'au 08/10/2025</p>
-                        <p><strong>Notes :</strong> Forme bien tolérée, améliore la relaxation musculaire et la qualité du sommeil. AR : 375mg/jour. Dosage Nutrixeal : 3 gélules = 240mg. Éviter en cas de problèmes rénaux.</p>
+                        <p><strong>Indications :</strong> Crampes musculaires, troubles du sommeil, stress, fatigue</p>
+                        <p><strong>Effets principaux :</strong> Relaxation musculaire, amélioration du sommeil, réduction du stress</p>
+                        <p><strong>Précautions :</strong> Forme bien tolérée. AR : 375mg/jour. Dosage Nutrixeal : 3 gélules = 240mg. Éviter en cas de problèmes rénaux.</p>
                     </div>
                 </div>
 
@@ -1371,7 +1416,9 @@
                         <p><strong>Prix unitaire :</strong> €18.90</p>
                         <p><strong>Prix quotidien :</strong> €0.63/jour</p>
                         <p><strong>Statut :</strong> 🔄 En cure</p>
-                        <p><strong>Notes :</strong> Prendre avec un repas contenant des graisses pour une meilleure absorption. AR : 250mg EPA+DHA/jour. Dosage optimisé : 1 gélule = 253mg EPA+DHA (DHA 250mg + EPA 3mg).</p>
+                        <p><strong>Indications :</strong> Santé cardiovasculaire, inflammation, troubles cognitifs, dépression</p>
+                        <p><strong>Effets principaux :</strong> Réduit l'inflammation, améliore la santé cardiaque, soutient le cerveau</p>
+                        <p><strong>Précautions :</strong> Prendre avec un repas contenant des graisses pour une meilleure absorption. AR : 250mg EPA+DHA/jour. Dosage optimisé : 1 gélule = 253mg EPA+DHA (DHA 250mg + EPA 3mg).</p>
                     </div>
                 </div>
 
@@ -1386,7 +1433,29 @@
                         <p><strong>Prix unitaire :</strong> €24.99</p>
                         <p><strong>Prix quotidien :</strong> €0.12/jour</p>
                         <p><strong>Statut :</strong> ✅ Actif</p>
-                        <p><strong>Notes :</strong> Adaptogène qui améliore la résistance au stress. Dosage optimisé : 0.5g/jour pour éviter l'agitation. Éviter le soir car peut stimuler. Prendre à jeun ou avec un repas léger. Plante médicinale, pas d'AR établi.</p>
+                        <p><strong>Indications :</strong> Stress chronique, fatigue, dépression, troubles de l'humeur</p>
+                        <p><strong>Effets principaux :</strong> Améliore la résistance au stress, booste l'énergie, stabilise l'humeur</p>
+                        <p><strong>Précautions :</strong> Dosage optimisé : 0.5g/jour pour éviter l'agitation. Éviter le soir car peut stimuler. Prendre à jeun ou avec un repas léger. Plante médicinale, pas d'AR établi.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section détails pour les substances spéciales -->
+        <div class="details-section" style="margin-top: 60px;">
+            <h2 style="color: #D0B3FF; margin-bottom: 20px;">🧪 Détails des substances spéciales</h2>
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h3>LSD (Microdose)</h3>
+                    <div class="detail-info">
+                        <p><strong>Dosage :</strong> 20 µg (1 microdose)</p>
+                        <p><strong>Moment précis :</strong> Matin (week-end)</p>
+                        <p><strong>Stock :</strong> 10 microdoses</p>
+                        <p><strong>Prix unitaire :</strong> €15.00</p>
+                        <p><strong>Prix par microdose :</strong> €1.50</p>
+                        <p><strong>Indications :</strong> Dépression, anxiété, créativité, conscience, bien-être mental</p>
+                        <p><strong>Effets principaux :</strong> Améliore la créativité, augmente la conscience, stabilise l'humeur</p>
+                        <p><strong>Précautions :</strong> Microdose sub-perceptuelle. Prise uniquement le week-end pour éviter la tolérance. Effets subtils mais bénéfiques sur l'humeur et la cognition. Respecter un protocole strict de microdosage.</p>
                     </div>
                 </div>
             </div>
@@ -1458,6 +1527,14 @@
                         <span>240mg (3 gélules)</span>
                     </div>
                 </div>
+
+                <div class="schedule-card">
+                    <h3>🧪 Week-end (Microdose)</h3>
+                    <div class="schedule-item">
+                        <span>LSD</span>
+                        <span>20 µg (1 microdose)</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1484,7 +1561,7 @@
                     endDate: "continue",
                     duration: 0, // continue
                     pauseDuration: 0, // pas de pause
-                    currentDay: 1,
+                    currentDay: 0,
                     type: "cure"
                 },
                 glycine: {
@@ -1494,7 +1571,7 @@
                     endDate: "continue",
                     duration: 0, // continue
                     pauseDuration: 0, // pas de pause
-                    currentDay: 1,
+                    currentDay: 0,
                     type: "cure"
                 },
                 complexeb: {
@@ -1508,7 +1585,7 @@
                     }(),
                     duration: 56, // 8 semaines
                     pauseDuration: 0, // pas de pause
-                    currentDay: 1,
+                    currentDay: 0,
                     type: "cure"
                 },
                 ashwagandha: {
@@ -1522,7 +1599,7 @@
                         return start.toISOString().split('T')[0];
                     }(),
                     pauseDuration: 10, // jours
-                    currentPauseDay: 1,
+                    currentPauseDay: 0,
                     type: "pause"
                 },
                 rhodiola: {
@@ -1536,7 +1613,7 @@
                     }(),
                     duration: 56,
                     pauseDuration: 21,
-                    currentDay: 1,
+                    currentDay: 0,
                     type: "cure"
                 },
                 creatine: {
@@ -1554,7 +1631,7 @@
                         const start = new Date("2024-01-10");
                         const today = new Date();
                         const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
-                        return Math.max(1, daysDiff + 1);
+                        return Math.max(0, daysDiff);
                     }(),
                     type: "cure"
                 },
@@ -1569,7 +1646,7 @@
                     }(),
                     duration: 56, // 8 semaines
                     pauseDuration: 28, // 4 semaines
-                    currentDay: 1,
+                    currentDay: 0,
                     type: "cure"
                 }
             };
@@ -1731,8 +1808,14 @@
                 const endDate = document.getElementById('endDate').value;
                 const notes = document.getElementById('notes').value;
                 
+                // Calculer le nombre de jours écoulés jusqu'à la date de fin
+                const startDate = new Date(cureData[supplement].startDate);
+                const endDateObj = new Date(endDate);
+                const daysDiff = Math.floor((endDateObj - startDate) / (1000 * 60 * 60 * 24));
+                
                 cureData[supplement].status = "completed";
                 cureData[supplement].endDate = endDate;
+                cureData[supplement].currentDay = Math.max(0, daysDiff); // Fixer le jour final
                 cureData[supplement].notes = notes;
                 
                 saveCureData();
@@ -1902,7 +1985,13 @@
                 
                 // Mettre à jour les informations
                 const infoElements = cureCard.querySelectorAll('.cure-info-value');
-                if (data.type === 'cure') {
+                if (data.status === 'completed') {
+                    // Pour les cures terminées, afficher les informations de fin
+                    if (infoElements[0]) infoElements[0].textContent = formatDate(data.startDate);
+                    if (infoElements[1]) infoElements[1].textContent = formatDate(data.endDate);
+                    if (infoElements[2]) infoElements[2].textContent = '✅ Terminée';
+                    if (infoElements[3]) infoElements[3].textContent = `${data.currentDay} jours effectués`;
+                } else if (data.type === 'cure') {
                     if (infoElements[0]) infoElements[0].textContent = formatDate(data.startDate);
                     if (infoElements[1]) infoElements[1].textContent = data.endDate === 'continue' ? 'Continue' : formatDate(data.endDate);
                     if (infoElements[2]) infoElements[2].textContent = data.duration > 0 ? `${Math.round(data.duration/7)} semaines` : 'Continue';
@@ -1918,7 +2007,19 @@
                 const progressFill = cureCard.querySelector('.progress-fill');
                 const progressText = cureCard.querySelector('.progress-text');
                 
-                if (data.type === 'cure') {
+                if (data.status === 'completed') {
+                    // Pour les cures terminées, afficher 100% et un message de fin
+                    if (progressFill) {
+                        progressFill.style.width = '100%';
+                        progressFill.style.background = 'linear-gradient(135deg, #4ADE80, #22C55E)';
+                    }
+                    if (progressText) {
+                        progressText.innerHTML = `
+                            <span>✅ Cure terminée</span>
+                            <span>100% terminé</span>
+                        `;
+                    }
+                } else if (data.type === 'cure') {
                     const percentage = data.duration > 0 ? Math.round((data.currentDay / data.duration) * 100) : 1;
                     if (progressFill) {
                         progressFill.style.width = `${percentage}%`;
@@ -2216,19 +2317,24 @@
                 const today = new Date();
                 Object.keys(cureData).forEach(supplement => {
                     const data = cureData[supplement];
+                    // Ne pas modifier les cures terminées
+                    if (data.status === 'completed') {
+                        return;
+                    }
+                    
                     if (data.status === 'active' && data.type === 'cure') {
                         // Calculer les jours écoulés depuis le début
                         const startDate = new Date(data.startDate);
                         const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
                         if (daysDiff >= 0) {
-                            data.currentDay = daysDiff + 1;
+                            data.currentDay = daysDiff;
                         }
                     } else if (data.status === 'pause' && data.type === 'pause') {
                         // Calculer les jours de pause écoulés
                         const pauseStart = new Date(data.pauseStart);
                         const daysDiff = Math.floor((today - pauseStart) / (1000 * 60 * 60 * 24));
                         if (daysDiff >= 0) {
-                            data.currentPauseDay = daysDiff + 1;
+                            data.currentPauseDay = daysDiff;
                         }
                     }
                 });
@@ -2245,6 +2351,20 @@
             
             // Debug: Afficher les données chargées dans la console
             console.log('Données des cures chargées:', cureData);
+            
+            // Debug: Afficher les calculs de jours pour vérification
+            console.log('=== DEBUG: Calculs de jours ===');
+            Object.keys(cureData).forEach(supplement => {
+                const data = cureData[supplement];
+                if (data.status === 'active' && data.type === 'cure') {
+                    const startDate = new Date(data.startDate);
+                    const today = new Date();
+                    const daysDiff = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+                    console.log(`${supplement}: Date début = ${data.startDate}, Aujourd'hui = ${today.toISOString().split('T')[0]}, Jours écoulés = ${daysDiff}, CurrentDay = ${data.currentDay}`);
+                } else if (data.status === 'completed') {
+                    console.log(`${supplement}: ✅ Cure terminée - Jour final: ${data.currentDay}, Date de fin: ${data.endDate}`);
+                }
+            });
 
             // Enregistrement du Service Worker pour la PWA
             if ('serviceWorker' in navigator) {
