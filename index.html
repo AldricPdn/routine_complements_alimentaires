@@ -871,8 +871,7 @@
         <div class="header">
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
-            <button onclick="refreshData()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">🔄 Rafraîchir les données</button>
-            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Synchroniser</button>
+            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">🔄 Synchroniser</button>
             <button onclick="forceUpdate()" style="background: rgba(248, 191, 216, 0.2); border: 1px solid rgba(248, 191, 216, 0.5); color: #F8BFD8; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Forcer mise à jour</button>
         </div>
 
@@ -2297,9 +2296,11 @@
             // Fonctions de sauvegarde et chargement
             function saveCureData() {
                 localStorage.setItem('cureData', JSON.stringify(cureData));
+                // Synchronisation automatique à chaque modification
+                syncDataToStorage();
             }
 
-            // Fonction pour synchroniser les données (séparée de saveCureData)
+            // Fonction pour synchroniser les données automatiquement
             function syncDataToStorage() {
                 const syncData = {
                     data: cureData,
@@ -2396,41 +2397,34 @@
                 location.reload();
             }
 
-            // Fonction pour rafraîchir les données
+            // Fonction pour rafraîchir les données (supprimée - remplacée par syncData)
             function refreshData() {
-                // Charger les données synchronisées en priorité
+                syncData(); // Utilise la même fonction que le bouton synchroniser
+            }
+
+            // Fonction pour synchroniser manuellement (bouton unique)
+            function syncData() {
+                // Charger les données synchronisées les plus récentes
                 const synced = localStorage.getItem('cureDataSync');
                 if (synced) {
                     try {
                         const parsed = JSON.parse(synced);
                         cureData = parsed.data;
-                        console.log('Données synchronisées chargées lors du rafraîchissement');
+                        console.log('Données synchronisées chargées:', parsed.timestamp);
+                        
+                        // Mettre à jour l'affichage
+                        Object.keys(cureData).forEach(supplement => {
+                            updateCureDisplay(supplement);
+                        });
+                        
+                        showNotification('Données synchronisées !', 'success');
                     } catch (e) {
-                        console.error('Erreur lors du chargement des données synchronisées:', e);
-                        loadCureData();
+                        console.error('Erreur lors de la synchronisation:', e);
+                        showNotification('Erreur de synchronisation', 'error');
                     }
                 } else {
-                    loadCureData();
+                    showNotification('Aucune donnée à synchroniser', 'info');
                 }
-                
-                advanceDays();
-                // Mettre à jour l'affichage pour tous les suppléments
-                Object.keys(cureData).forEach(supplement => {
-                    updateCureDisplay(supplement);
-                });
-                
-                showNotification('Données rafraîchies !', 'info');
-            }
-
-            // Fonction pour synchroniser les données
-            function syncData() {
-                // Sauvegarder d'abord les données normales
-                saveCureData();
-                
-                // Puis synchroniser
-                syncDataToStorage();
-                
-                showNotification('Données synchronisées !', 'success');
             }
 
             // Fonction pour charger les données synchronisées
@@ -2452,26 +2446,48 @@
             // Charger les données au démarrage
             loadCureData();
             advanceDays();
+            
+            // Vérifier s'il y a des données synchronisées plus récentes au démarrage
+            setTimeout(() => {
+                const synced = localStorage.getItem('cureDataSync');
+                if (synced) {
+                    try {
+                        const parsed = JSON.parse(synced);
+                        const currentData = JSON.stringify(cureData);
+                        const syncedData = JSON.stringify(parsed.data);
+                        
+                        if (currentData !== syncedData) {
+                            console.log('Données synchronisées détectées au démarrage');
+                            cureData = parsed.data;
+                            Object.keys(cureData).forEach(supplement => {
+                                updateCureDisplay(supplement);
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Erreur lors de la vérification des données synchronisées:', e);
+                    }
+                }
+            }, 1000); // Vérifier après 1 seconde
 
-            // Écouter les messages de synchronisation (version simplifiée)
+            // Écouter les messages de synchronisation automatique
             if ('BroadcastChannel' in window) {
                 const channel = new BroadcastChannel('cure-data-sync');
                 channel.addEventListener('message', (event) => {
                     if (event.data.type === 'DATA_UPDATED') {
-                        console.log('Nouvelles données reçues:', event.data.timestamp);
-                        // Recharger les données sans déclencher de nouvelles sauvegardes
+                        console.log('Synchronisation automatique reçue:', event.data.timestamp);
+                        // Recharger les données automatiquement
                         const synced = localStorage.getItem('cureDataSync');
                         if (synced) {
                             try {
                                 const parsed = JSON.parse(synced);
                                 cureData = parsed.data;
-                                // Mettre à jour l'affichage seulement
+                                // Mettre à jour l'affichage automatiquement
                                 Object.keys(cureData).forEach(supplement => {
                                     updateCureDisplay(supplement);
                                 });
-                                showNotification('Données mises à jour !', 'info');
+                                console.log('Synchronisation automatique réussie');
                             } catch (e) {
-                                console.error('Erreur lors du chargement des données synchronisées:', e);
+                                console.error('Erreur lors de la synchronisation automatique:', e);
                             }
                         }
                     }
