@@ -2297,8 +2297,10 @@
             // Fonctions de sauvegarde et chargement
             function saveCureData() {
                 localStorage.setItem('cureData', JSON.stringify(cureData));
-                
-                // Synchronisation automatique
+            }
+
+            // Fonction pour synchroniser les données (séparée de saveCureData)
+            function syncDataToStorage() {
                 const syncData = {
                     data: cureData,
                     timestamp: new Date().toISOString(),
@@ -2396,35 +2398,37 @@
 
             // Fonction pour rafraîchir les données
             function refreshData() {
-                loadCureData();
+                // Charger les données synchronisées en priorité
+                const synced = localStorage.getItem('cureDataSync');
+                if (synced) {
+                    try {
+                        const parsed = JSON.parse(synced);
+                        cureData = parsed.data;
+                        console.log('Données synchronisées chargées lors du rafraîchissement');
+                    } catch (e) {
+                        console.error('Erreur lors du chargement des données synchronisées:', e);
+                        loadCureData();
+                    }
+                } else {
+                    loadCureData();
+                }
+                
                 advanceDays();
                 // Mettre à jour l'affichage pour tous les suppléments
                 Object.keys(cureData).forEach(supplement => {
                     updateCureDisplay(supplement);
                 });
+                
+                showNotification('Données rafraîchies !', 'info');
             }
 
             // Fonction pour synchroniser les données
             function syncData() {
-                // Sauvegarder les données actuelles avec un timestamp
-                const syncData = {
-                    data: cureData,
-                    timestamp: new Date().toISOString(),
-                    version: '1.0'
-                };
-                localStorage.setItem('cureDataSync', JSON.stringify(syncData));
-                
-                // Forcer la sauvegarde des données normales
+                // Sauvegarder d'abord les données normales
                 saveCureData();
                 
-                // Notifier les autres onglets/instances
-                if ('BroadcastChannel' in window) {
-                    const channel = new BroadcastChannel('cure-data-sync');
-                    channel.postMessage({
-                        type: 'DATA_UPDATED',
-                        timestamp: syncData.timestamp
-                    });
-                }
+                // Puis synchroniser
+                syncDataToStorage();
                 
                 showNotification('Données synchronisées !', 'success');
             }
@@ -2449,40 +2453,32 @@
             loadCureData();
             advanceDays();
 
-            // Écouter les messages de synchronisation
+            // Écouter les messages de synchronisation (version simplifiée)
             if ('BroadcastChannel' in window) {
                 const channel = new BroadcastChannel('cure-data-sync');
                 channel.addEventListener('message', (event) => {
                     if (event.data.type === 'DATA_UPDATED') {
                         console.log('Nouvelles données reçues:', event.data.timestamp);
-                        // Recharger les données
-                        loadCureData();
-                        advanceDays();
-                        showNotification('Données mises à jour !', 'info');
+                        // Recharger les données sans déclencher de nouvelles sauvegardes
+                        const synced = localStorage.getItem('cureDataSync');
+                        if (synced) {
+                            try {
+                                const parsed = JSON.parse(synced);
+                                cureData = parsed.data;
+                                // Mettre à jour l'affichage seulement
+                                Object.keys(cureData).forEach(supplement => {
+                                    updateCureDisplay(supplement);
+                                });
+                                showNotification('Données mises à jour !', 'info');
+                            } catch (e) {
+                                console.error('Erreur lors du chargement des données synchronisées:', e);
+                            }
+                        }
                     }
                 });
             }
 
-            // Synchronisation automatique toutes les 30 secondes
-            setInterval(() => {
-                // Vérifier s'il y a de nouvelles données synchronisées
-                const synced = localStorage.getItem('cureDataSync');
-                if (synced) {
-                    try {
-                        const parsed = JSON.parse(synced);
-                        const currentData = JSON.stringify(cureData);
-                        const syncedData = JSON.stringify(parsed.data);
-                        
-                        if (currentData !== syncedData) {
-                            console.log('Synchronisation automatique détectée');
-                            loadCureData();
-                            advanceDays();
-                        }
-                    } catch (e) {
-                        console.error('Erreur lors de la synchronisation automatique:', e);
-                    }
-                }
-            }, 30000); // 30 secondes
+            // Synchronisation manuelle uniquement - pas de boucle automatique
             
             // Debug: Afficher les données chargées dans la console
             console.log('Données des cures chargées:', cureData);
