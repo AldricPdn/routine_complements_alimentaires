@@ -871,8 +871,8 @@
         <div class="header">
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
-            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">💾 Exporter</button>
-            <button onclick="forceSync()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">📁 Importer</button>
+            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">☁️ Synchroniser</button>
+            <button onclick="forceSync()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Récupérer</button>
         </div>
 
         <div class="table-container">
@@ -2296,7 +2296,10 @@
             // Fonctions de sauvegarde et chargement
             function saveCureData() {
                 localStorage.setItem('cureData', JSON.stringify(cureData));
-                // Pas de synchronisation automatique - seulement manuelle
+                // Synchronisation automatique après chaque modification
+                setTimeout(() => {
+                    syncData();
+                }, 1000); // Synchroniser 1 seconde après la sauvegarde
             }
 
             // Fonction supprimée - remplacée par le nouveau système
@@ -2354,79 +2357,90 @@
                 forceSync(); // Utilise la fonction de mise à jour
             }
 
-            // Fonction pour synchroniser (après modification)
+            // Fonction pour synchroniser automatiquement (système cloud simple)
             function syncData() {
                 // Sauvegarder les données normales
                 saveCureData();
                 
-                // Créer un fichier de données exportables
-                const exportData = {
+                // Créer un identifiant unique pour l'utilisateur (basé sur l'heure de première utilisation)
+                let userId = localStorage.getItem('userId');
+                if (!userId) {
+                    userId = 'user_' + Date.now();
+                    localStorage.setItem('userId', userId);
+                }
+                
+                // Préparer les données pour le cloud
+                const cloudData = {
+                    userId: userId,
                     cureData: cureData,
                     timestamp: new Date().toISOString(),
                     version: '1.0'
                 };
                 
-                // Sauvegarder dans localStorage pour partage
-                localStorage.setItem('cureDataExport', JSON.stringify(exportData));
+                // Sauvegarder dans localStorage comme cache local
+                localStorage.setItem('cloudData', JSON.stringify(cloudData));
                 
-                // Créer un fichier de téléchargement pour partage entre appareils
-                const dataStr = JSON.stringify(exportData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(dataBlob);
+                // Synchroniser avec un service cloud simple (JSONBin.io - gratuit)
+                const cloudUrl = 'https://api.jsonbin.io/v3/b/65f8a8c8266cfc3fde9c8c8c';
+                const apiKey = '$2a$10$YourApiKeyHere'; // Clé API JSONBin.io
                 
-                // Créer un lien de téléchargement invisible
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = 'cure_data_' + new Date().toISOString().split('T')[0] + '.json';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                
-                console.log('Données synchronisées et fichier créé:', exportData.timestamp);
-                showNotification('Données synchronisées ! Fichier de sauvegarde créé.', 'success');
+                fetch(cloudUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': apiKey
+                    },
+                    body: JSON.stringify(cloudData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Synchronisation cloud réussie:', data);
+                    showNotification('Données synchronisées en cloud !', 'success');
+                })
+                .catch(error => {
+                    console.error('Erreur synchronisation cloud:', error);
+                    showNotification('Synchronisation locale uniquement', 'warning');
+                });
             }
 
-            // Fonction pour forcer la mise à jour (quand on change d'appareil)
+            // Fonction pour récupérer les données depuis le cloud
             function forceSync() {
-                // Créer un input file pour importer les données
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.style.display = 'none';
+                const userId = localStorage.getItem('userId');
+                if (!userId) {
+                    showNotification('Aucun utilisateur identifié', 'error');
+                    return;
+                }
                 
-                input.onchange = function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            try {
-                                const importedData = JSON.parse(e.target.result);
-                                if (importedData.cureData) {
-                                    cureData = importedData.cureData;
-                                    saveCureData();
-                                    
-                                    // Mettre à jour l'affichage
-                                    Object.keys(cureData).forEach(supplement => {
-                                        updateCureDisplay(supplement);
-                                    });
-                                    
-                                    showNotification('Données importées avec succès !', 'success');
-                                } else {
-                                    showNotification('Format de fichier invalide', 'error');
-                                }
-                            } catch (error) {
-                                console.error('Erreur lors de l\'import:', error);
-                                showNotification('Erreur lors de l\'import du fichier', 'error');
-                            }
-                        };
-                        reader.readAsText(file);
+                // Récupérer depuis le cloud
+                const cloudUrl = 'https://api.jsonbin.io/v3/b/65f8a8c8266cfc3fde9c8c8c';
+                const apiKey = '$2a$10$YourApiKeyHere';
+                
+                fetch(cloudUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': apiKey
                     }
-                };
-                
-                document.body.appendChild(input);
-                input.click();
-                document.body.removeChild(input);
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.record && data.record.userId === userId) {
+                        cureData = data.record.cureData;
+                        saveCureData();
+                        
+                        // Mettre à jour l'affichage
+                        Object.keys(cureData).forEach(supplement => {
+                            updateCureDisplay(supplement);
+                        });
+                        
+                        showNotification('Données récupérées du cloud !', 'success');
+                    } else {
+                        showNotification('Aucune donnée trouvée', 'info');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur récupération cloud:', error);
+                    showNotification('Erreur de connexion au cloud', 'error');
+                });
             }
 
             // Fonction supprimée - remplacée par le nouveau système
@@ -2435,7 +2449,42 @@
             loadCureData();
             advanceDays();
             
-            // Pas de vérification automatique - système manuel uniquement
+            // Synchronisation automatique au démarrage
+            setTimeout(() => {
+                const userId = localStorage.getItem('userId');
+                if (userId) {
+                    // Essayer de récupérer les données du cloud au démarrage
+                    const cloudUrl = 'https://api.jsonbin.io/v3/b/65f8a8c8266cfc3fde9c8c8c';
+                    const apiKey = '$2a$10$YourApiKeyHere';
+                    
+                    fetch(cloudUrl, {
+                        method: 'GET',
+                        headers: {
+                            'X-Master-Key': apiKey
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.record && data.record.userId === userId) {
+                            const cloudTimestamp = new Date(data.record.timestamp);
+                            const localTimestamp = new Date(localStorage.getItem('lastSync') || 0);
+                            
+                            if (cloudTimestamp > localTimestamp) {
+                                console.log('Données cloud plus récentes détectées');
+                                cureData = data.record.cureData;
+                                saveCureData();
+                                Object.keys(cureData).forEach(supplement => {
+                                    updateCureDisplay(supplement);
+                                });
+                                showNotification('Données synchronisées automatiquement !', 'success');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Pas de connexion cloud au démarrage');
+                    });
+                }
+            }, 2000); // Vérifier après 2 secondes
 
             // Synchronisation manuelle uniquement - pas de communication automatique
 
