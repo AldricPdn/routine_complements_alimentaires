@@ -871,7 +871,8 @@
         <div class="header">
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
-            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">🔄 Synchroniser</button>
+            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">💾 Synchroniser</button>
+            <button onclick="forceSync()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Mise à jour</button>
             <button onclick="forceUpdate()" style="background: rgba(248, 191, 216, 0.2); border: 1px solid rgba(248, 191, 216, 0.5); color: #F8BFD8; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Forcer mise à jour</button>
         </div>
 
@@ -2296,8 +2297,7 @@
             // Fonctions de sauvegarde et chargement
             function saveCureData() {
                 localStorage.setItem('cureData', JSON.stringify(cureData));
-                // Synchronisation automatique à chaque modification
-                syncDataToStorage();
+                // Pas de synchronisation automatique - seulement manuelle
             }
 
             // Fonction pour synchroniser les données automatiquement
@@ -2397,33 +2397,47 @@
                 location.reload();
             }
 
-            // Fonction pour rafraîchir les données (supprimée - remplacée par syncData)
+            // Fonction pour rafraîchir les données (remplacée par forceSync)
             function refreshData() {
-                syncData(); // Utilise la même fonction que le bouton synchroniser
+                forceSync(); // Utilise la fonction de mise à jour
             }
 
-            // Fonction pour synchroniser manuellement (bouton unique)
+            // Fonction pour synchroniser (après modification)
             function syncData() {
+                // Sauvegarder les données actuelles avec timestamp
+                const syncData = {
+                    data: cureData,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+                localStorage.setItem('cureDataSync', JSON.stringify(syncData));
+                
+                console.log('Données synchronisées:', syncData.timestamp);
+                showNotification('Données synchronisées !', 'success');
+            }
+
+            // Fonction pour forcer la mise à jour (quand on change d'appareil)
+            function forceSync() {
                 // Charger les données synchronisées les plus récentes
                 const synced = localStorage.getItem('cureDataSync');
                 if (synced) {
                     try {
                         const parsed = JSON.parse(synced);
                         cureData = parsed.data;
-                        console.log('Données synchronisées chargées:', parsed.timestamp);
+                        console.log('Données mises à jour depuis:', parsed.timestamp);
                         
                         // Mettre à jour l'affichage
                         Object.keys(cureData).forEach(supplement => {
                             updateCureDisplay(supplement);
                         });
                         
-                        showNotification('Données synchronisées !', 'success');
+                        showNotification('Données mises à jour !', 'success');
                     } catch (e) {
-                        console.error('Erreur lors de la synchronisation:', e);
-                        showNotification('Erreur de synchronisation', 'error');
+                        console.error('Erreur lors de la mise à jour:', e);
+                        showNotification('Erreur de mise à jour', 'error');
                     }
                 } else {
-                    showNotification('Aucune donnée à synchroniser', 'info');
+                    showNotification('Aucune donnée synchronisée trouvée', 'info');
                 }
             }
 
@@ -2469,30 +2483,7 @@
                 }
             }, 1000); // Vérifier après 1 seconde
 
-            // Écouter les messages de synchronisation automatique
-            if ('BroadcastChannel' in window) {
-                const channel = new BroadcastChannel('cure-data-sync');
-                channel.addEventListener('message', (event) => {
-                    if (event.data.type === 'DATA_UPDATED') {
-                        console.log('Synchronisation automatique reçue:', event.data.timestamp);
-                        // Recharger les données automatiquement
-                        const synced = localStorage.getItem('cureDataSync');
-                        if (synced) {
-                            try {
-                                const parsed = JSON.parse(synced);
-                                cureData = parsed.data;
-                                // Mettre à jour l'affichage automatiquement
-                                Object.keys(cureData).forEach(supplement => {
-                                    updateCureDisplay(supplement);
-                                });
-                                console.log('Synchronisation automatique réussie');
-                            } catch (e) {
-                                console.error('Erreur lors de la synchronisation automatique:', e);
-                            }
-                        }
-                    }
-                });
-            }
+            // Synchronisation manuelle uniquement - pas de communication automatique
 
             // Synchronisation manuelle uniquement - pas de boucle automatique
             
