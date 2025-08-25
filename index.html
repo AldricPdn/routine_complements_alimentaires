@@ -871,8 +871,8 @@
         <div class="header">
             <h1>Routine Compléments Alimentaires</h1>
             <p>Suivi quotidien de vos suppléments nutritionnels</p>
-            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">💾 Synchroniser</button>
-            <button onclick="forceSync()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">🔄 Mise à jour</button>
+            <button onclick="syncData()" style="background: rgba(74, 222, 128, 0.2); border: 1px solid rgba(74, 222, 128, 0.5); color: #4ADE80; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.9rem;">💾 Exporter</button>
+            <button onclick="forceSync()" style="background: rgba(102, 191, 255, 0.2); border: 1px solid rgba(102, 191, 255, 0.5); color: #66BFFF; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; margin-left: 10px; font-size: 0.9rem;">📁 Importer</button>
         </div>
 
         <div class="table-container">
@@ -2369,42 +2369,64 @@
                 // Sauvegarder dans localStorage pour partage
                 localStorage.setItem('cureDataExport', JSON.stringify(exportData));
                 
-                console.log('Données synchronisées:', exportData.timestamp);
-                showNotification('Données synchronisées !', 'success');
+                // Créer un fichier de téléchargement pour partage entre appareils
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                // Créer un lien de téléchargement invisible
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'cure_data_' + new Date().toISOString().split('T')[0] + '.json';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log('Données synchronisées et fichier créé:', exportData.timestamp);
+                showNotification('Données synchronisées ! Fichier de sauvegarde créé.', 'success');
             }
 
             // Fonction pour forcer la mise à jour (quand on change d'appareil)
             function forceSync() {
-                // Essayer de charger les données exportées
-                const exported = localStorage.getItem('cureDataExport');
-                if (exported) {
-                    try {
-                        const parsed = JSON.parse(exported);
-                        cureData = parsed.cureData;
-                        console.log('Données mises à jour depuis:', parsed.timestamp);
-                        
-                        // Sauvegarder les données mises à jour
-                        saveCureData();
-                        
-                        // Mettre à jour l'affichage
-                        Object.keys(cureData).forEach(supplement => {
-                            updateCureDisplay(supplement);
-                        });
-                        
-                        showNotification('Données mises à jour !', 'success');
-                    } catch (e) {
-                        console.error('Erreur lors de la mise à jour:', e);
-                        showNotification('Erreur de mise à jour', 'error');
+                // Créer un input file pour importer les données
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.style.display = 'none';
+                
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            try {
+                                const importedData = JSON.parse(e.target.result);
+                                if (importedData.cureData) {
+                                    cureData = importedData.cureData;
+                                    saveCureData();
+                                    
+                                    // Mettre à jour l'affichage
+                                    Object.keys(cureData).forEach(supplement => {
+                                        updateCureDisplay(supplement);
+                                    });
+                                    
+                                    showNotification('Données importées avec succès !', 'success');
+                                } else {
+                                    showNotification('Format de fichier invalide', 'error');
+                                }
+                            } catch (error) {
+                                console.error('Erreur lors de l\'import:', error);
+                                showNotification('Erreur lors de l\'import du fichier', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
                     }
-                } else {
-                    // Si pas de données exportées, recharger les données normales
-                    loadCureData();
-                    advanceDays();
-                    Object.keys(cureData).forEach(supplement => {
-                        updateCureDisplay(supplement);
-                    });
-                    showNotification('Données rechargées !', 'info');
-                }
+                };
+                
+                document.body.appendChild(input);
+                input.click();
+                document.body.removeChild(input);
             }
 
             // Fonction supprimée - remplacée par le nouveau système
@@ -2413,28 +2435,7 @@
             loadCureData();
             advanceDays();
             
-            // Vérifier s'il y a des données exportées au démarrage
-            setTimeout(() => {
-                const exported = localStorage.getItem('cureDataExport');
-                if (exported) {
-                    try {
-                        const parsed = JSON.parse(exported);
-                        const currentData = JSON.stringify(cureData);
-                        const exportedData = JSON.stringify(parsed.cureData);
-                        
-                        if (currentData !== exportedData) {
-                            console.log('Données exportées détectées au démarrage');
-                            cureData = parsed.cureData;
-                            saveCureData(); // Sauvegarder les données mises à jour
-                            Object.keys(cureData).forEach(supplement => {
-                                updateCureDisplay(supplement);
-                            });
-                        }
-                    } catch (e) {
-                        console.error('Erreur lors de la vérification des données exportées:', e);
-                    }
-                }
-            }, 1000); // Vérifier après 1 seconde
+            // Pas de vérification automatique - système manuel uniquement
 
             // Synchronisation manuelle uniquement - pas de communication automatique
 
